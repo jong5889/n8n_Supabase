@@ -1,0 +1,82 @@
+{
+  "name": "Supabase CRUD 테스트 워크플로우",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1234567890",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "create",
+        "tableId": "test_table",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "테스트 데이터"
+          }
+        }
+      },
+      "id": "2345678901",
+      "name": "Supabase - 데이터 생성",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_credential",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "getAll",
+        "tableId": "test_table"
+      },
+      "id": "3456789012",
+      "name": "Supabase - 데이터 조회",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_credential",
+          "name": "Supabase API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Supabase - 데이터 생성",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - 데이터 생성": {
+      "main": [
+        [
+          {
+            "node": "Supabase - 데이터 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+} 

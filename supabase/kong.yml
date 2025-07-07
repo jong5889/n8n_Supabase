@@ -1,0 +1,299 @@
+_format_version: "3.0"
+
+# 완전한 Supabase Kong API Gateway 설정
+
+###
+# 서비스 정의
+###
+services:
+  - name: auth-v1
+    url: http://auth:9999/
+  - name: rest-v1
+    url: http://rest:3000/
+  - name: meta-v1
+    url: http://meta:8080/
+  - name: storage-v1
+    url: http://storage:5000/
+  - name: realtime-v1
+    url: http://realtime:4000/socket/
+
+###
+# 라우트 정의
+###
+routes:
+  - name: auth-v1-all
+    service: auth-v1
+    hosts:
+      - localhost
+    paths:
+      - /auth/v1/
+    strip_path: true
+    methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+
+  - name: rest-v1-all
+    service: rest-v1
+    hosts:
+      - localhost
+    paths:
+      - /rest/v1/
+    strip_path: true
+    methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+
+  - name: meta-v1-all
+    service: meta-v1
+    hosts:
+      - localhost
+    paths:
+      - /pg/
+    strip_path: true
+    methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+
+  - name: storage-v1-all
+    service: storage-v1
+    hosts:
+      - localhost
+    paths:
+      - /storage/v1/
+    strip_path: true
+    methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+
+  - name: realtime-v1-all
+    service: realtime-v1
+    hosts:
+      - localhost
+    paths:
+      - /realtime/v1/
+    strip_path: true
+    methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+
+###
+# 플러그인 정의
+###
+plugins:
+  # 전역 CORS 설정
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+        - HEAD
+      headers:
+        - Accept
+        - Accept-Language
+        - Authorization
+        - Content-Type
+        - X-Requested-With
+        - apikey
+        - x-client-info
+        - x-supabase-api-version
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+
+  # 전역 요청 변환 플러그인
+  - name: request-transformer
+    config:
+      add:
+        headers:
+          - "X-Forwarded-Proto: http"
+          - "X-Forwarded-Host: localhost"
+          - "X-Forwarded-Port: 8000"
+
+  # REST API 키 인증
+  - name: key-auth
+    route: rest-v1-all
+    config:
+      key_names:
+        - apikey
+      key_in_header: true
+      key_in_query: true
+      key_in_body: false
+      hide_credentials: true
+
+  # Storage API 키 인증
+  - name: key-auth
+    route: storage-v1-all
+    config:
+      key_names:
+        - apikey
+      key_in_header: true
+      key_in_query: true
+      key_in_body: false
+      hide_credentials: true
+
+  # Realtime API 키 인증
+  - name: key-auth
+    route: realtime-v1-all
+    config:
+      key_names:
+        - apikey
+      key_in_header: true
+      key_in_query: true
+      key_in_body: false
+      hide_credentials: true
+
+  # REST API JWT 인증
+  - name: jwt
+    route: rest-v1-all
+    config:
+      uri_param_names:
+        - jwt
+      cookie_names:
+        - jwt
+      header_names:
+        - authorization
+      claims_to_verify:
+        - exp
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: 00000000-0000-0000-0000-000000000000
+      run_on_preflight: true
+
+  # Storage API JWT 인증
+  - name: jwt
+    route: storage-v1-all
+    config:
+      uri_param_names:
+        - jwt
+      cookie_names:
+        - jwt
+      header_names:
+        - authorization
+      claims_to_verify:
+        - exp
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: 00000000-0000-0000-0000-000000000000
+      run_on_preflight: true
+
+  # Realtime API JWT 인증
+  - name: jwt
+    route: realtime-v1-all
+    config:
+      uri_param_names:
+        - jwt
+      cookie_names:
+        - jwt
+      header_names:
+        - authorization
+      claims_to_verify:
+        - exp
+      key_claim_name: iss
+      secret_is_base64: false
+      anonymous: 00000000-0000-0000-0000-000000000000
+      run_on_preflight: true
+
+  # REST API ACL (접근 제어)
+  - name: acl
+    route: rest-v1-all
+    config:
+      allow:
+        - authenticated
+        - anon
+        - service_role
+      hide_groups_header: true
+
+  # Storage API ACL (접근 제어)
+  - name: acl
+    route: storage-v1-all
+    config:
+      allow:
+        - authenticated
+        - anon
+        - service_role
+      hide_groups_header: true
+
+  # Realtime API ACL (접근 제어)
+  - name: acl
+    route: realtime-v1-all
+    config:
+      allow:
+        - authenticated
+        - anon
+        - service_role
+      hide_groups_header: true
+
+  # 요청 크기 제한 (Storage용)
+  - name: request-size-limiting
+    route: storage-v1-all
+    config:
+      allowed_payload_size: 52428800  # 50MB
+
+  # 응답 변환 (API 응답 헤더 추가)
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Supabase-Region: local"
+          - "X-Supabase-Environment: self-hosted"
+
+###
+# 소비자 정의 (API 키 사용자)
+###
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+    acls:
+      - group: anon
+    jwt_secrets:
+      - consumer: null
+        key: supabase-anon
+        secret: your-super-secret-jwt-token-with-at-least-32-characters
+        algorithm: HS256
+
+  - username: service_role
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+    acls:
+      - group: service_role
+    jwt_secrets:
+      - consumer: null
+        key: supabase-service-role
+        secret: your-super-secret-jwt-token-with-at-least-32-characters
+        algorithm: HS256
+
+  - username: authenticated
+    acls:
+      - group: authenticated
+    jwt_secrets:
+      - consumer: null
+        key: supabase-authenticated
+        secret: your-super-secret-jwt-token-with-at-least-32-characters
+        algorithm: HS256 

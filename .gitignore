@@ -1,0 +1,140 @@
+# n8n + Supabase Docker Self-Hosting .gitignore
+
+# 환경 변수 파일 (실제 환경 변수는 제외, 예시 파일만 포함)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 환경 변수 예시 파일은 포함 (템플릿 역할)
+!.env.example
+
+# Docker 관련 파일
+docker-compose.override.yml
+.docker/
+
+# n8n 데이터 및 설정
+n8n/data/
+n8n/config/database.sqlite
+n8n/workflows/backup/
+n8n/logs/
+
+# Supabase 데이터 및 설정
+supabase/volumes/
+supabase/config/*.conf
+supabase/migrations/applied/
+supabase/logs/
+
+# PostgreSQL 데이터
+postgres_data/
+pgdata/
+
+# Redis 데이터
+redis_data/
+
+# 인증 및 보안 관련 파일
+*.key
+*.pem
+*.crt
+*.p12
+auth_secrets/
+jwt_secrets/
+
+# 로그 파일
+*.log
+logs/
+*.log.*
+
+# 백업 파일
+*.backup
+*.bak
+*.sql.gz
+backups/
+
+# 임시 파일
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# macOS 관련
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE 및 에디터 관련
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node.js 관련 (n8n custom nodes 개발 시)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Python 관련 (스크립트 개발 시)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 설정 백업
+config_backup/
+settings_backup/
+
+# 개발 관련 파일
+.devcontainer/
+.dockerignore.bak
+
+# 사용자 정의 스크립트
+scripts/private/
+scripts/local/
+
+# SSL 인증서
+ssl/
+certificates/
+*.csr
+
+# 모니터링 및 메트릭
+prometheus_data/
+grafana_data/
+monitoring/
+
+# 테스트 결과
+test_results/
+coverage/
+
+# 문서 빌드 결과
+docs/_build/
+docs/.doctrees/
+
+# 기타 민감한 정보
+secrets/
+private/
+confidential/ 

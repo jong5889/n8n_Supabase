@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "n8n-supabase-integration"
+  },
+  "name": "Supabase CRUD 워크플로우 템플릿",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e7e4c65a-7b5e-4a7f-9c2d-1a2b3c4d5e6f",
+      "name": "시작",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- CREATE: 새 사용자 추가\nINSERT INTO test_table (name, email) \nVALUES ('{{ $json.name }}', '{{ $json.email }}') \nON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name \nRETURNING *;",
+        "options": {}
+      },
+      "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      "name": "CREATE - 사용자 추가",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 200],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credential",
+          "name": "PostgreSQL (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- READ: 모든 사용자 조회\nSELECT * FROM test_table ORDER BY id;",
+        "options": {}
+      },
+      "id": "b2c3d4e5-f6g7-8901-2345-678901bcdefg",
+      "name": "READ - 사용자 조회",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credential",
+          "name": "PostgreSQL (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- UPDATE: 사용자 정보 수정\nUPDATE test_table \nSET name = '{{ $json.name }}' \nWHERE email = '{{ $json.email }}' \nRETURNING *;",
+        "options": {}
+      },
+      "id": "c3d4e5f6-g7h8-9012-3456-789012cdefgh",
+      "name": "UPDATE - 사용자 수정",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 400],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credential",
+          "name": "PostgreSQL (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- DELETE: 사용자 삭제\nDELETE FROM test_table \nWHERE email = '{{ $json.email }}' \nRETURNING *;",
+        "options": {}
+      },
+      "id": "d4e5f6g7-h8i9-0123-4567-890123defghi",
+      "name": "DELETE - 사용자 삭제",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [450, 500],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credential",
+          "name": "PostgreSQL (Supabase)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "operation",
+              "field2": "operation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5f6g7h8-i9j0-1234-5678-901234efghij",
+      "name": "결과 병합",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [650, 350]
+    }
+  ],
+  "connections": {
+    "시작": {
+      "main": [
+        [
+          {
+            "node": "READ - 사용자 조회",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "READ - 사용자 조회": {
+      "main": [
+        [
+          {
+            "node": "결과 병합",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE - 사용자 추가": {
+      "main": [
+        [
+          {
+            "node": "결과 병합",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "UPDATE - 사용자 수정": {
+      "main": [
+        [
+          {
+            "node": "결과 병합",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "DELETE - 사용자 삭제": {
+      "main": [
+        [
+          {
+            "node": "결과 병합",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-07-06T15:00:00.000Z",
+      "updatedAt": "2025-07-06T15:00:00.000Z",
+      "id": "1",
+      "name": "supabase"
+    },
+    {
+      "createdAt": "2025-07-06T15:00:00.000Z",
+      "updatedAt": "2025-07-06T15:00:00.000Z",
+      "id": "2",
+      "name": "crud"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-06T15:00:00.000Z",
+  "versionId": "1.0.0"
+} 
